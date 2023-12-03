@@ -4,6 +4,7 @@ class GameSet:
         self.red = 0
         self.blue = 0
         self.green = 0
+        self.power = 0
 
     def check_max(self, color: str, count: int):
         if color == "red" and self.red < count:
@@ -23,6 +24,9 @@ class GameSet:
         for bag in bags_arr:
             bag_arr = bag.strip().split(" ")
             self.check_max(bag_arr[1], int(bag_arr[0]))
+
+    def set_power(self):
+        self.power = self.red * self.blue * self.green
 
 
 def read_lines(path: str):
@@ -52,6 +56,7 @@ def main():
     input_arr = format_lines(lines)
     games_arr = []
     output_sum = 0
+    output_power_sum = 0
 
     for game in input_arr:
         game_set = GameSet(int(game[0]))
@@ -61,13 +66,16 @@ def main():
             bags_arr = game_round.split(",")
             game_set.get_bag_info(bags_arr)
 
+        game_set.set_power()
         games_arr.append(game_set)
 
     for game in games_arr:
+        output_power_sum = output_power_sum + game.power
         if game.is_valid():
             output_sum = output_sum + game.id
 
-    print(output_sum)
+    print("sum: " + str(output_sum))
+    print("power sum: " + str(output_power_sum))
 
 
 if __name__ == "__main__":
