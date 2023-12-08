@@ -1,6 +1,6 @@
 class CardsHand:
     """
-        [2, 3, 4, 5, 6, 7, 8, 9, T, J, Q, K, A] - available cards
+        [J, 2, 3, 4, 5, 6, 7, 8, 9, T, Q, K, A] - available cards
         [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] - indexes
 
         Types of hand (lower value == weaker):
@@ -22,12 +22,17 @@ class CardsHand:
     def get_hand_type(self):
         hashmap = [0] * 13
 
+        four_same_cards = 0
         three_same_cards = 0
         two_same_cards = 0
+        j_cards = 0
 
         for card in self.cards:
-            index = get_card_index(card)
-            hashmap[index] = hashmap[index] + 1
+            if card != "J":
+                index = get_card_index(card)
+                hashmap[index] = hashmap[index] + 1
+            else:
+                j_cards += 1
 
         for card_count in hashmap:
             if card_count == 5:
@@ -35,8 +40,7 @@ class CardsHand:
                 return
 
             if card_count == 4:
-                self.type = 6
-                return
+                four_same_cards = four_same_cards + 1
 
             if card_count == 3:
                 three_same_cards = three_same_cards + 1
@@ -44,11 +48,28 @@ class CardsHand:
             if card_count == 2:
                 two_same_cards = two_same_cards + 1
 
-        if three_same_cards == 1 and two_same_cards == 1:
+        if (four_same_cards == 1 and j_cards == 1
+                or three_same_cards == 1 and j_cards == 2
+                or two_same_cards == 1 and j_cards == 3
+                or j_cards >= 4):
+            self.type = 7
+            return
+
+        if (four_same_cards == 1
+                or three_same_cards == 1 and j_cards == 1
+                or two_same_cards == 1 and j_cards == 2
+                or j_cards == 3):
+            self.type = 6
+            return
+
+        if (three_same_cards == 1 and two_same_cards == 1
+                or two_same_cards == 2 and j_cards == 1):
             self.type = 5
             return
 
-        if three_same_cards == 1:
+        if (three_same_cards == 1
+                or two_same_cards == 1 and j_cards == 1
+                or j_cards == 2):
             self.type = 4
             return
 
@@ -56,7 +77,8 @@ class CardsHand:
             self.type = 3
             return
 
-        if two_same_cards == 1:
+        if (two_same_cards == 1
+                or j_cards == 1):
             self.type = 2
             return
 
@@ -86,12 +108,12 @@ def get_card_index(card: str):
     index = -1
 
     if card.isdigit():
-        return int(card) - 2
-
-    if card == "T":
-        index = 8
+        return int(card) - 1
 
     if card == "J":
+        index = 0
+
+    if card == "T":
         index = 9
 
     if card == "Q":
