@@ -113,6 +113,7 @@ def get_line_info(line: str):
     actual_number = ""
     actual_indexes = []
     symbols_indexes = []
+    gear_indexes = []
     numbers_pos = []
     length = len(line)
 
@@ -125,14 +126,18 @@ def get_line_info(line: str):
             actual_indexes.append(i)
 
         if char.isdigit() is False and actual_number != "" or (char.isdigit() and i == length - 1):
-            numbers_pos.append(NumberPos(actual_number, actual_indexes))
+            numbers_pos.append(NumberPos(int(actual_number), actual_indexes))
             actual_number = ""
             actual_indexes = []
+
+        if char == "*":
+            gear_indexes.append(i)
+            continue
 
         if char.isdigit() is False and char != ".":
             symbols_indexes.append(i)
 
-    return [numbers_pos, symbols_indexes]
+    return [numbers_pos, symbols_indexes, gear_indexes]
 
 
 def check_lines(numbers_pos, symbols_indexes):
@@ -151,13 +156,52 @@ def check_lines(numbers_pos, symbols_indexes):
     return partial_numbers
 
 
+def get_gear_ratio(gear_index: int, line_index: int, numbers_pos: list[list[NumberPos]]):
+    length = len(numbers_pos)
+    connected_numbers = []
+
+    for number in numbers_pos[line_index]:
+        if gear_index - 1 in number.indexes or gear_index + 1 in number.indexes:
+            connected_numbers.append(number)
+
+    if line_index != 0:
+        for number in numbers_pos[line_index - 1]:
+            if gear_index - 1 in number.indexes or gear_index + 1 in number.indexes or gear_index in number.indexes:
+                connected_numbers.append(number)
+
+    if line_index != length - 1:
+        for number in numbers_pos[line_index + 1]:
+            if gear_index - 1 in number.indexes or gear_index + 1 in number.indexes or gear_index in number.indexes:
+                connected_numbers.append(number)
+
+    count = len(connected_numbers)
+
+    if count != 2:
+        return 0
+
+    return connected_numbers[0].number * connected_numbers[1].number
+
+
+def get_all_gears_ratio(gears_pos: list[list[int]], numbers_pos: list[list[NumberPos]]):
+    ratio = 0
+
+    for line_index, gear_pos in enumerate(gears_pos):
+        for gear_index in gear_pos:
+            value = get_gear_ratio(gear_index, line_index, numbers_pos)
+            ratio += value
+
+    return ratio
+
+
 def main():
     lines = read_lines("./input.txt")
     symbols_indexes = []
     numbers_pos = []
+    gears_pos = []
     partial_numbers = []
     output_sum = 0
 
+    """ part 1
     for line in lines:
         line_info = get_line_info(line)
         numbers_pos.append(line_info[0])
@@ -169,6 +213,15 @@ def main():
         output_sum = output_sum + int(number)
 
     print(output_sum)
+    """
+
+    for line in lines:
+        line_info = get_line_info(line)
+        numbers_pos.append(line_info[0])
+        gears_pos.append(line_info[2])
+
+    ratio = get_all_gears_ratio(gears_pos, numbers_pos)
+    print(ratio)
 
 
 if __name__ == "__main__":
