@@ -105,8 +105,6 @@ def main():
         step = get_steps_count(node, sequence, nodes)
         nodes_steps.append(step)
 
-    print(nodes_steps)
-
     lmc = get_steps_lmc(nodes_steps)
 
     print(lmc)
