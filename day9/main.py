@@ -66,13 +66,41 @@ def get_next_value(sequence: list[int]):
     return value
 
 
+def get_beginning_value(sequence: list[int]):
+    value = 0
+    actual_index = 0
+    history_sequence = [sequence]
+
+    while check_if_zero(history_sequence[actual_index]) is False:
+        new_sequence = get_next_sequence(history_sequence[actual_index])
+        history_sequence.append(new_sequence)
+        actual_index += 1
+
+    history_sequence[actual_index].insert(0, 0)
+
+    while actual_index != 0:
+        actual_sequence = history_sequence[actual_index]
+        previous_sequence = history_sequence[actual_index - 1]
+
+        num1 = actual_sequence[0]
+        num2 = previous_sequence[0]
+
+        value = num2 - num1
+
+        previous_sequence.insert(0, value)
+
+        actual_index -= 1
+
+    return value
+
+
 def main():
     value_sum = 0
     lines = read_lines("./input.txt")
     sequences = prepare_sequence(lines)
 
     for sequence in sequences:
-        value = get_next_value(sequence)
+        value = get_beginning_value(sequence)
         value_sum += value
 
     print(value_sum)
